@@ -1,0 +1,42 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+- group: 'your-variable-group-name'
+
+steps:
+- task: TerraformInstaller@0
+  inputs:
+    terraformVersion: '0.14.7'
+
+- task: TerraformTaskV1@0
+  inputs:
+    provider: 'azurerm'
+    command: 'init'
+    commandOptions: '-input=false'
+    workingDirectory: '$(System.DefaultWorkingDirectory)'
+    environmentServiceNameAzureRM: 'your-service-connection-name'
+    backendServiceArm: 'your-service-connection-name'
+    backendAzureRmResourceGroupName: 'your-resource-group'
+    backendAzureRmStorageAccountName: 'your-storage-account'
+    backendAzureRmContainerName: 'your-container-name'
+    backendAzureRmKey: 'terraform.tfstate'
+
+- task: TerraformTaskV1@0
+  inputs:
+    provider: 'azurerm'
+    command: 'plan'
+    commandOptions: '-input=false -var-file="$(System.DefaultWorkingDirectory)/variables.tfvars"'
+    workingDirectory: '$(System.DefaultWorkingDirectory)'
+    environmentServiceNameAzureRM: 'your-service-connection-name'
+
+- task: TerraformTaskV1@0
+  inputs:
+    provider: 'azurerm'
+    command: 'apply'
+    commandOptions: '-input=false -auto-approve -var-file="$(System.DefaultWorkingDirectory)/variables.tfvars"'
+    workingDirectory: '$(System.DefaultWorkingDirectory)'
+    environmentServiceNameAzureRM: 'your-service-connection-name'
